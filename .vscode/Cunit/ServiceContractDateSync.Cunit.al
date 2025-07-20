@@ -1,5 +1,5 @@
 #region CR-26042025-service mangment-Creating a service contract automatically
-codeunit 50103 "ServiceContractDateSyncCunit"
+codeunit 50904 "ServiceContractDateSyncCunit"
 {
     // This codeunit provides validation and synchronization logic
     // for Service Contract and Service Item date management
@@ -16,36 +16,17 @@ codeunit 50103 "ServiceContractDateSyncCunit"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Service Item", 'OnBeforeModifyEvent', '', false, false)]
-    local procedure OnBeforeServiceItemModify(var Rec: Record "Service Item"; var xRec: Record "Service Item")
-    var
-        ServiceMgtSetup: Record "Service Mgt. Setup";
-    begin
-        ServiceMgtSetup.Get();
-        if ServiceMgtSetup."Locked Service Item" then begin
-            // Prevent any manual changes to warranty dates
-            PreventManualWarrantyDateChanges(Rec, xRec);
-        end;
-    end;
-
-    local procedure PreventManualWarrantyDateChanges(var ServiceItem: Record "Service Item"; var xServiceItem: Record "Service Item")
-    var
-        ErrorMsg: Label 'Warranty dates cannot be changed directly in Service Item. Please make change in related Service Contract instead.';
-    begin
-        // Check if user is trying to manually change any warranty dates
-        if (ServiceItem."Warranty Starting Date (Labor)" <> xServiceItem."Warranty Starting Date (Labor)") or
-           (ServiceItem."Warranty Ending Date (Labor)" <> xServiceItem."Warranty Ending Date (Labor)") or
-           (ServiceItem."Warranty Starting Date (Parts)" <> xServiceItem."Warranty Starting Date (Parts)") or
-           (ServiceItem."Warranty Ending Date (Parts)" <> xServiceItem."Warranty Ending Date (Parts)") then begin
-            Error(ErrorMsg);
-        end;
-    end;
-
-    local procedure UpdateServiceItemsFromContract(ServiceContractHeader: Record "Service Contract Header")
+    procedure UpdateServiceItemsFromContract(ServiceContractHeader: Record "Service Contract Header")
     var
         ServiceContractLine: Record "Service Contract Line";
         ServiceItem: Record "Service Item";
+        ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
+        // Check if auto update is enabled
+        ServiceMgtSetup.Get();
+        if not ServiceMgtSetup."Auto Service Item Date Update" then
+            exit;
+
         // Update all related Service Items
         ServiceContractLine.SetRange("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
@@ -53,10 +34,10 @@ codeunit 50103 "ServiceContractDateSyncCunit"
         if ServiceContractLine.FindSet() then
             repeat
                 if ServiceItem.Get(ServiceContractLine."Service Item No.") then begin
-                    // Update all warranty dates
+                    // Update all warranty dates directly (including empty dates)
                     ServiceItem."Warranty Starting Date (Labor)" := ServiceContractHeader."Starting Date";
-                    ServiceItem."Warranty Ending Date (Labor)" := ServiceContractHeader."Expiration Date";
                     ServiceItem."Warranty Starting Date (Parts)" := ServiceContractHeader."Starting Date";
+                    ServiceItem."Warranty Ending Date (Labor)" := ServiceContractHeader."Expiration Date";
                     ServiceItem."Warranty Ending Date (Parts)" := ServiceContractHeader."Expiration Date";
 
                     ServiceItem.Modify();

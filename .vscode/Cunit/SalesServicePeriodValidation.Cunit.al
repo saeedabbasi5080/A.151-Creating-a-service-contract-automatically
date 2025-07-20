@@ -1,5 +1,5 @@
 // #region CR-26042025-service mangment-Creating a service contract automatically
-codeunit 50102 "SalesServPeriodValidationCunit"
+codeunit 50902 "SalesServPeriodValidationCunit"
 {
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", 'OnBeforeReleaseSalesDoc', '', false, false)]
     // local procedure OnAfterReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var LinesWereModified: Boolean)

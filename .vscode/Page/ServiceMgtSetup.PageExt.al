@@ -1,5 +1,5 @@
 #region CR-26042025-service mangment-Creating a service contract automatically
-pageextension 50101 "ServiceMgtSetupPageExt" extends "Service Mgt. Setup"
+pageextension 50906 "ServiceMgtSetupPageExt" extends "Service Mgt. Setup"
 {
     layout
     {

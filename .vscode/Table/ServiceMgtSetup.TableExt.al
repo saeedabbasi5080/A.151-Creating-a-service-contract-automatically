@@ -1,5 +1,5 @@
 #region CR-26042025-service mangment-Creating a service contract automatically
-tableextension 50100 "ServiceMgtSetupTableExt" extends "Service Mgt. Setup"
+tableextension 50906 "ServiceMgtSetupTableExt" extends "Service Mgt. Setup"
 {
     fields
     {
