@@ -10,11 +10,10 @@ codeunit 50103 "ServiceContractDateSyncCunit"
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
         ServiceMgtSetup.Get();
-        if not ServiceMgtSetup."Auto Service Item Date Update" then
-            exit;
-
-        if (Rec."Expiration Date" <> xRec."Expiration Date") or (Rec."Starting Date" <> xRec."Starting Date") then
-            UpdateServiceItemsFromContract(Rec);
+        if ServiceMgtSetup."Auto Service Item Date Update" then begin
+            if (Rec."Expiration Date" <> xRec."Expiration Date") or (Rec."Starting Date" <> xRec."Starting Date") then
+                UpdateServiceItemsFromContract(Rec);
+        end;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Service Item", 'OnBeforeModifyEvent', '', false, false)]
@@ -23,11 +22,10 @@ codeunit 50103 "ServiceContractDateSyncCunit"
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
         ServiceMgtSetup.Get();
-        if not ServiceMgtSetup."Locked Service Item" then
-            exit;
-
-        // Prevent any manual changes to warranty dates
-        PreventManualWarrantyDateChanges(Rec, xRec);
+        if ServiceMgtSetup."Locked Service Item" then begin
+            // Prevent any manual changes to warranty dates
+            PreventManualWarrantyDateChanges(Rec, xRec);
+        end;
     end;
 
     local procedure PreventManualWarrantyDateChanges(var ServiceItem: Record "Service Item"; var xServiceItem: Record "Service Item")
@@ -39,13 +37,6 @@ codeunit 50103 "ServiceContractDateSyncCunit"
            (ServiceItem."Warranty Ending Date (Labor)" <> xServiceItem."Warranty Ending Date (Labor)") or
            (ServiceItem."Warranty Starting Date (Parts)" <> xServiceItem."Warranty Starting Date (Parts)") or
            (ServiceItem."Warranty Ending Date (Parts)" <> xServiceItem."Warranty Ending Date (Parts)") then begin
-
-            // Revert all changes to warranty dates
-            ServiceItem."Warranty Starting Date (Labor)" := xServiceItem."Warranty Starting Date (Labor)";
-            ServiceItem."Warranty Ending Date (Labor)" := xServiceItem."Warranty Ending Date (Labor)";
-            ServiceItem."Warranty Starting Date (Parts)" := xServiceItem."Warranty Starting Date (Parts)";
-            ServiceItem."Warranty Ending Date (Parts)" := xServiceItem."Warranty Ending Date (Parts)";
-
             Error(ErrorMsg);
         end;
     end;
