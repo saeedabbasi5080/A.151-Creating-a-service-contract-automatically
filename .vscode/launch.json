@@ -6,8 +6,8 @@
             "request": "launch",
             "type": "al",
             "environmentType": "OnPrem",
-            "server": "http://localhost:8080/BCAliasys",
-            "serverInstance": "BCAliasys",
+            "server": "http://localhost:8080/BC2019",
+            "serverInstance": "BC2019",
             "authentication": "Windows",
             "startupObjectId": 22,
             "startupObjectType": "Page",
@@ -18,7 +18,7 @@
             "tenant": "default",
             "usePublicURLFromServer": true,
             "schemaUpdateMode": "Recreate",
-            "port": 7059
+            "port": 7049
         }
     ]
 }
